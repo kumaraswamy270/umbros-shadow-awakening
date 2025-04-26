@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -12,6 +11,7 @@ import AnimeGallery from "./pages/AnimeGallery";
 import LatestAnimes from "./pages/LatestAnimes";
 import Login from "./pages/Login";
 import { AuthProvider } from "./contexts/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -23,13 +23,47 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/ebooks" element={<AnimeEbooks />} />
-            <Route path="/stories" element={<AnimeStories />} />
-            <Route path="/gallery" element={<AnimeGallery />} />
-            <Route path="/latest" element={<LatestAnimes />} />
             <Route path="/login" element={<Login />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <Index />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/ebooks"
+              element={
+                <ProtectedRoute>
+                  <AnimeEbooks />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/stories"
+              element={
+                <ProtectedRoute>
+                  <AnimeStories />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/gallery"
+              element={
+                <ProtectedRoute>
+                  <AnimeGallery />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/latest"
+              element={
+                <ProtectedRoute>
+                  <LatestAnimes />
+                </ProtectedRoute>
+              }
+            />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

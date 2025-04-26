@@ -5,6 +5,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   username: string | null;
   login: (username: string, password: string) => Promise<boolean>;
+  signup: (username: string, password: string) => Promise<boolean>;
   logout: () => void;
 }
 
@@ -23,10 +24,29 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   }, []);
 
-  // In a real app, this would validate against a backend
-  const login = async (username: string, password: string): Promise<boolean> => {
-    // Mock authentication for demonstration
+  const signup = async (username: string, password: string): Promise<boolean> => {
+    // Check if user already exists
+    const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
+    if (existingUsers.find((user: string) => user === username)) {
+      return false;
+    }
+
+    // Save new user
     if (username && password.length >= 6) {
+      const updatedUsers = [...existingUsers, username];
+      localStorage.setItem('users', JSON.stringify(updatedUsers));
+      localStorage.setItem(`password_${username}`, password);
+      return true;
+    }
+    return false;
+  };
+
+  const login = async (username: string, password: string): Promise<boolean> => {
+    // Check if user exists and password matches
+    const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
+    const storedPassword = localStorage.getItem(`password_${username}`);
+    
+    if (existingUsers.includes(username) && password === storedPassword) {
       setIsAuthenticated(true);
       setUsername(username);
       localStorage.setItem('user', username);
@@ -42,7 +62,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, username, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, username, login, signup, logout }}>
       {children}
     </AuthContext.Provider>
   );

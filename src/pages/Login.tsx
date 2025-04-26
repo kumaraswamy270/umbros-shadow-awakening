@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -26,7 +25,7 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { login } = useAuth();
+  const { login, signup } = useAuth();
 
   const loginForm = useForm({
     resolver: zodResolver(loginSchema),
@@ -59,7 +58,7 @@ const Login = () => {
       } else {
         toast({
           title: "Login failed",
-          description: "Please check your username and password.",
+          description: "Please check your username and password or sign up if you don't have an account.",
           variant: "destructive",
         });
       }
@@ -78,20 +77,20 @@ const Login = () => {
     setIsLoading(true);
     
     try {
-      // In a real app, this would call a signup API
-      // For now, we'll just use our login function which saves to local storage
-      const success = await login(values.username, values.password);
+      const success = await signup(values.username, values.password);
       
       if (success) {
         toast({
           title: "Signup successful!",
-          description: "Welcome to JackAnime.",
+          description: "Please login with your new account.",
         });
-        navigate('/');
+        signupForm.reset();
+        const loginTab = document.querySelector('[value="login"]') as HTMLElement;
+        if (loginTab) loginTab.click();
       } else {
         toast({
           title: "Signup failed",
-          description: "Please try again with a different username.",
+          description: "Username already exists or invalid credentials.",
           variant: "destructive",
         });
       }
