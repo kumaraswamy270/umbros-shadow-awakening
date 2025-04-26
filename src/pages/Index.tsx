@@ -1,10 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import AnimatedScene from '@/components/AnimatedScene';
 import CharacterProfile from '@/components/CharacterProfile';
 import VideoPlayer from '@/components/VideoPlayer';
 import FlameEffect from '@/components/FlameEffect';
+import AnimeNavigation from '@/components/AnimeNavigation';
 import { Button } from '@/components/ui/button';
 import { ChevronDown } from 'lucide-react';
 
@@ -38,8 +38,10 @@ const Index = () => {
 
   return (
     <div className="min-h-screen w-full bg-umbros-dark text-white">
-      {/* Hero Section with Title */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden">
+      <AnimeNavigation />
+      
+      {/* Add margin-top to account for fixed navigation */}
+      <section className="relative h-screen flex items-center justify-center overflow-hidden pt-16">
         <div className="absolute inset-0 bg-umbros-dark">
           <div className="absolute inset-0 bg-[url('/umbros-bg.jpg')] bg-cover bg-center opacity-30"></div>
           <FlameEffect intensity="low" className="opacity-40" />

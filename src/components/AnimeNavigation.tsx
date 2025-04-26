@@ -1,0 +1,133 @@
+
+import React from 'react';
+import { motion } from 'framer-motion';
+import { BookOpen, Film, Image, Play } from 'lucide-react';
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu"
+import { cn } from '@/lib/utils';
+
+const AnimeNavigation = () => {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="fixed top-0 left-0 right-0 z-50 bg-umbros-dark/80 backdrop-blur-lg border-b border-umbros-light"
+    >
+      <div className="container mx-auto px-4">
+        <NavigationMenu className="py-4">
+          <NavigationMenuList className="gap-6">
+            <NavigationMenuItem>
+              <NavigationMenuTrigger>
+                <BookOpen className="w-5 h-5 mr-2" />
+                Story
+              </NavigationMenuTrigger>
+              <NavigationMenuContent>
+                <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+                  <li className="row-span-3">
+                    <a
+                      className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-umbros-flame/50 to-umbros-dark p-6 no-underline outline-none focus:shadow-md"
+                      href="/"
+                    >
+                      <div className="mb-2 mt-4 text-lg font-medium text-white">
+                        Umbros: Shadow Awakening
+                      </div>
+                      <p className="text-sm leading-tight text-white/90">
+                        Discover the epic tale of Kael and the mysterious Shadow Phoenix.
+                      </p>
+                    </a>
+                  </li>
+                  <ListItem href="/" title="Characters" icon={BookOpen}>
+                    Meet the heroes and villains
+                  </ListItem>
+                  <ListItem href="/" title="World" icon={Image}>
+                    Explore the universe
+                  </ListItem>
+                  <ListItem href="/" title="Timeline" icon={Film}>
+                    Follow the story
+                  </ListItem>
+                </ul>
+              </NavigationMenuContent>
+            </NavigationMenuItem>
+
+            <NavigationMenuItem>
+              <NavigationMenuTrigger>
+                <Film className="w-5 h-5 mr-2" />
+                Watch
+              </NavigationMenuTrigger>
+              <NavigationMenuContent>
+                <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px]">
+                  <ListItem href="/" title="Latest Episode" icon={Play}>
+                    Watch the latest episode now
+                  </ListItem>
+                  <ListItem href="/" title="All Episodes" icon={Film}>
+                    Browse all episodes
+                  </ListItem>
+                  <ListItem href="/" title="Trailers" icon={Image}>
+                    Watch trailers and teasers
+                  </ListItem>
+                </ul>
+              </NavigationMenuContent>
+            </NavigationMenuItem>
+
+            <NavigationMenuItem>
+              <NavigationMenuTrigger>
+                <Image className="w-5 h-5 mr-2" />
+                Gallery
+              </NavigationMenuTrigger>
+              <NavigationMenuContent>
+                <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+                  <ListItem href="/" title="Artwork" icon={Image}>
+                    Official artwork and illustrations
+                  </ListItem>
+                  <ListItem href="/" title="Screenshots" icon={Film}>
+                    Episode screenshots
+                  </ListItem>
+                  <ListItem href="/" title="Behind the Scenes" icon={BookOpen}>
+                    Production artwork and sketches
+                  </ListItem>
+                </ul>
+              </NavigationMenuContent>
+            </NavigationMenuItem>
+          </NavigationMenuList>
+        </NavigationMenu>
+      </div>
+    </motion.div>
+  );
+};
+
+const ListItem = React.forwardRef<
+  React.ElementRef<"a">,
+  React.ComponentPropsWithoutRef<"a"> & { icon: React.ComponentType<{ className?: string }>, title: string }
+>(({ className, title, children, icon: Icon, ...props }, ref) => {
+  return (
+    <li>
+      <NavigationMenuLink asChild>
+        <a
+          ref={ref}
+          className={cn(
+            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-umbros-light hover:text-white focus:bg-umbros-light focus:text-white",
+            className
+          )}
+          {...props}
+        >
+          <div className="flex items-center gap-2 text-sm font-medium leading-none">
+            <Icon className="h-5 w-5" />
+            {title}
+          </div>
+          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+            {children}
+          </p>
+        </a>
+      </NavigationMenuLink>
+    </li>
+  );
+});
+ListItem.displayName = "ListItem";
+
+export default AnimeNavigation;
