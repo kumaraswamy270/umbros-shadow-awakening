@@ -1,5 +1,5 @@
 
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -13,6 +13,15 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [username, setUsername] = useState<string | null>(null);
+
+  // Check for existing session on load
+  useEffect(() => {
+    const savedUser = localStorage.getItem('user');
+    if (savedUser) {
+      setIsAuthenticated(true);
+      setUsername(savedUser);
+    }
+  }, []);
 
   // In a real app, this would validate against a backend
   const login = async (username: string, password: string): Promise<boolean> => {
@@ -31,15 +40,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setUsername(null);
     localStorage.removeItem('user');
   };
-
-  // Check for existing session on load
-  React.useEffect(() => {
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      setIsAuthenticated(true);
-      setUsername(savedUser);
-    }
-  }, []);
 
   return (
     <AuthContext.Provider value={{ isAuthenticated, username, login, logout }}>
