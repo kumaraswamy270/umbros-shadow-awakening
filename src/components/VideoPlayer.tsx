@@ -44,6 +44,35 @@ const VideoPlayer = ({
     console.log("Video source changed to:", videoSrc);
   }, [videoSrc]);
 
+  // Check if video URLs are valid and accessible
+  useEffect(() => {
+    // Create a separate video element to test loading
+    if (!videoSrc) return;
+    
+    const testVideo = document.createElement('video');
+    
+    const handleTestLoad = () => {
+      console.log("Test video loaded successfully for:", videoSrc);
+    };
+    
+    const handleTestError = () => {
+      console.error("Test video failed to load:", videoSrc);
+      // Don't set error state here as we'll try with the main player anyway
+    };
+    
+    testVideo.addEventListener('loadeddata', handleTestLoad);
+    testVideo.addEventListener('error', handleTestError);
+    
+    testVideo.src = videoSrc;
+    testVideo.load();
+    
+    return () => {
+      testVideo.removeEventListener('loadeddata', handleTestLoad);
+      testVideo.removeEventListener('error', handleTestError);
+      testVideo.src = '';
+    };
+  }, [videoSrc]);
+
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -63,6 +92,17 @@ const VideoPlayer = ({
       setDuration(video.duration);
       console.log("Video loaded successfully:", videoSrc);
       toast.success("Video loaded successfully");
+      
+      // If autoPlay is true, try to play the video immediately
+      if (autoPlay && video.paused) {
+        const playPromise = video.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(err => {
+            console.error("AutoPlay failed:", err);
+            setIsPlaying(false);
+          });
+        }
+      }
     };
 
     const handleLoadStart = () => {
@@ -72,6 +112,8 @@ const VideoPlayer = ({
 
     const handleCanPlay = () => {
       console.log("Video can play now:", videoSrc);
+      setIsLoaded(true);
+      setIsLoading(false);
     };
 
     const handleError = (e: Event) => {
@@ -80,6 +122,16 @@ const VideoPlayer = ({
       setIsLoaded(false);
       setIsLoading(false);
       toast.error("Failed to load video");
+      
+      // Try with a fallback demo video
+      if (videoSrc.includes('?t=')) {
+        const baseUrl = videoSrc.split('?')[0];
+        if (baseUrl !== '/demo-video.mp4') {
+          console.log("Trying fallback video");
+          video.src = '/anime-video-sample.mp4';
+          video.load();
+        }
+      }
     };
 
     const handleEnded = () => {
@@ -110,7 +162,7 @@ const VideoPlayer = ({
       video.removeEventListener('error', handleError);
       video.removeEventListener('ended', handleEnded);
     };
-  }, [videoSrc]);
+  }, [videoSrc, autoPlay]);
 
   useEffect(() => {
     if (videoRef.current) {

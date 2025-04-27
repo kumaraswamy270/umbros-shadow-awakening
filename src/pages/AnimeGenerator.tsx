@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -121,21 +122,30 @@ const AnimeGenerator = () => {
     try {
       console.log("Generating anime video with:", values);
       
+      // Simulate API call with delay
       await new Promise(resolve => setTimeout(resolve, 3000));
       
+      // Use demo videos based on duration
       const demoVideos = {
         short: "/anime-video-sample-short.mp4", 
         medium: "/anime-video-sample.mp4",
         long: "/anime-video-sample-long.mp4"
       };
       
+      // Add timestamp to prevent caching issues
       const timestamp = new Date().getTime();
       const selectedVideo = demoVideos[values.duration];
+      
+      // Ensure we have a valid video URL
+      if (!selectedVideo) {
+        throw new Error("Invalid duration selected");
+      }
+      
       const videoWithTimestamp = `${selectedVideo}?t=${timestamp}`;
-      
       console.log("Setting video source to:", videoWithTimestamp);
-      setGeneratedVideo(videoWithTimestamp);
       
+      // Set the video source and notify user
+      setGeneratedVideo(videoWithTimestamp);
       toast.success("Your anime video has been generated!");
     } catch (error) {
       toast.error("Failed to generate video. Please try again.");
@@ -157,17 +167,30 @@ const AnimeGenerator = () => {
     try {
       console.log("Generating video from image with:", { ...values, image: selectedImage.name });
       
+      // Simulate API call with delay
       await new Promise(resolve => setTimeout(resolve, 3000));
       
+      // Use demo videos based on duration
       const demoVideos = {
         short: "/anime-video-sample-short.mp4", 
         medium: "/anime-video-sample.mp4",
         long: "/anime-video-sample-long.mp4"
       };
       
+      // Add timestamp to prevent caching issues
       const timestamp = new Date().getTime();
-      const selectedVideo = demoVideos[values.duration] || demoVideos.medium;
-      setGeneratedVideo(`${selectedVideo}?t=${timestamp}`);
+      const selectedVideo = demoVideos[values.duration];
+      
+      // Ensure we have a valid video URL
+      if (!selectedVideo) {
+        throw new Error("Invalid duration selected");
+      }
+      
+      const videoWithTimestamp = `${selectedVideo}?t=${timestamp}`;
+      console.log("Setting video source to:", videoWithTimestamp);
+      
+      // Set the video source and notify user
+      setGeneratedVideo(videoWithTimestamp);
       toast.success("Your anime video has been generated from the image!");
     } catch (error) {
       toast.error("Failed to generate video from image. Please try again.");
