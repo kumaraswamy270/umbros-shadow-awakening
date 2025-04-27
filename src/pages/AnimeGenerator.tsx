@@ -129,10 +129,13 @@ const AnimeGenerator = () => {
         long: "/anime-video-sample-long.mp4"
       };
       
-      const selectedVideo = demoVideos[values.duration] || demoVideos.medium;
-      
       const timestamp = new Date().getTime();
-      setGeneratedVideo(`${selectedVideo}?t=${timestamp}`);
+      const selectedVideo = demoVideos[values.duration];
+      const videoWithTimestamp = `${selectedVideo}?t=${timestamp}`;
+      
+      console.log("Setting video source to:", videoWithTimestamp);
+      setGeneratedVideo(videoWithTimestamp);
+      
       toast.success("Your anime video has been generated!");
     } catch (error) {
       toast.error("Failed to generate video. Please try again.");
@@ -485,6 +488,7 @@ const AnimeGenerator = () => {
                         posterSrc="/anime-video-poster.jpg"
                         title="Generated Anime Video"
                         className="w-full aspect-video"
+                        autoPlay
                       />
                     </div>
                   ) : (

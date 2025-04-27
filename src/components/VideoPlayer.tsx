@@ -31,6 +31,8 @@ const VideoPlayer = ({
   const videoRef = useRef<HTMLVideoElement>(null);
   const progressBarRef = useRef<HTMLDivElement>(null);
 
+  console.log("Video source in VideoPlayer:", videoSrc);
+
   // Reset state when video source changes
   useEffect(() => {
     setIsLoading(true);
@@ -39,6 +41,7 @@ const VideoPlayer = ({
     setProgress(0);
     setCurrentTime(0);
     setDuration(0);
+    console.log("Video source changed to:", videoSrc);
   }, [videoSrc]);
 
   useEffect(() => {
@@ -64,10 +67,15 @@ const VideoPlayer = ({
 
     const handleLoadStart = () => {
       setIsLoading(true);
+      console.log("Video loading started:", videoSrc);
+    };
+
+    const handleCanPlay = () => {
+      console.log("Video can play now:", videoSrc);
     };
 
     const handleError = (e: Event) => {
-      console.error("Video error:", e);
+      console.error("Video error:", e, video.error);
       setError("Error loading video. Please try again.");
       setIsLoaded(false);
       setIsLoading(false);
@@ -76,21 +84,29 @@ const VideoPlayer = ({
 
     const handleEnded = () => {
       setIsPlaying(false);
+      console.log("Video playback ended");
     };
 
     video.addEventListener('timeupdate', updateProgress);
     video.addEventListener('loadeddata', handleLoadedData);
     video.addEventListener('loadstart', handleLoadStart);
+    video.addEventListener('canplay', handleCanPlay);
     video.addEventListener('error', handleError);
     video.addEventListener('ended', handleEnded);
 
     // Try to force load the video
-    video.load();
+    try {
+      video.load();
+      console.log("Video load called");
+    } catch (err) {
+      console.error("Error loading video:", err);
+    }
 
     return () => {
       video.removeEventListener('timeupdate', updateProgress);
       video.removeEventListener('loadeddata', handleLoadedData);
       video.removeEventListener('loadstart', handleLoadStart);
+      video.removeEventListener('canplay', handleCanPlay);
       video.removeEventListener('error', handleError);
       video.removeEventListener('ended', handleEnded);
     };
@@ -99,12 +115,17 @@ const VideoPlayer = ({
   useEffect(() => {
     if (videoRef.current) {
       if (isPlaying) {
+        console.log("Attempting to play video");
         const playPromise = videoRef.current.play();
         
         if (playPromise !== undefined) {
           playPromise.catch(error => {
             console.error("Video playback failed:", error);
             setIsPlaying(false);
+            // Try to reload the video if it failed to play
+            if (videoRef.current) {
+              videoRef.current.load();
+            }
           });
         }
       } else {
@@ -144,6 +165,7 @@ const VideoPlayer = ({
     if (videoRef.current) {
       setIsLoading(true);
       setError(null);
+      console.log("Retrying video load");
       videoRef.current.load();
     }
   };
@@ -162,6 +184,7 @@ const VideoPlayer = ({
         ref={videoRef}
         className="w-full h-full object-cover bg-umbros-dark/90"
         poster={posterSrc}
+        preload="auto"
         autoPlay={autoPlay}
         playsInline
         muted={autoPlay || isMuted}
