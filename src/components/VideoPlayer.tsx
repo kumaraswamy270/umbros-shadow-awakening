@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 
 interface VideoPlayerProps {
   videoSrc: string;
-  posterSrc: string;
+  posterSrc?: string;
   title?: string;
   autoPlay?: boolean;
   className?: string;
@@ -22,6 +22,8 @@ const VideoPlayer = ({
   const [isPlaying, setIsPlaying] = useState(autoPlay);
   const [progress, setProgress] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const progressBarRef = useRef<HTMLDivElement>(null);
 
@@ -36,19 +38,44 @@ const VideoPlayer = ({
       }
     };
 
+    const handleLoadedData = () => {
+      setIsLoaded(true);
+      setError(null);
+    };
+
+    const handleError = () => {
+      setError("Error loading video. Please try again.");
+      setIsLoaded(false);
+    };
+
     video.addEventListener('timeupdate', updateProgress);
+    video.addEventListener('loadeddata', handleLoadedData);
+    video.addEventListener('error', handleError);
+
     return () => {
       video.removeEventListener('timeupdate', updateProgress);
+      video.removeEventListener('loadeddata', handleLoadedData);
+      video.removeEventListener('error', handleError);
     };
-  }, []);
+  }, [videoSrc]);
 
   useEffect(() => {
-    if (isPlaying) {
-      videoRef.current?.play();
-    } else {
-      videoRef.current?.pause();
+    if (videoRef.current) {
+      if (isPlaying) {
+        const playPromise = videoRef.current.play();
+        
+        // Handle asynchronous play promise
+        if (playPromise !== undefined) {
+          playPromise.catch(error => {
+            console.error("Video playback failed:", error);
+            setIsPlaying(false);
+          });
+        }
+      } else {
+        videoRef.current.pause();
+      }
     }
-  }, [isPlaying]);
+  }, [isPlaying, videoSrc]);
 
   const togglePlay = () => {
     setIsPlaying(!isPlaying);
@@ -91,6 +118,20 @@ const VideoPlayer = ({
         <source src={videoSrc} type="video/mp4" />
         Your browser does not support the video tag.
       </video>
+      
+      {/* Video Loading/Error State */}
+      {!isLoaded && videoSrc && (
+        <div className="absolute inset-0 flex items-center justify-center bg-umbros-dark/70">
+          {error ? (
+            <p className="text-red-400">{error}</p>
+          ) : (
+            <div className="animate-pulse flex flex-col items-center">
+              <div className="w-10 h-10 border-4 border-umbros-flame border-t-transparent rounded-full animate-spin mb-2"></div>
+              <p className="text-white">Loading video...</p>
+            </div>
+          )}
+        </div>
+      )}
       
       {/* Video Controls */}
       <div className="absolute bottom-0 left-0 right-0 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">

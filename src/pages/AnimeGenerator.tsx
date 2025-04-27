@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -10,6 +9,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import AnimeLayout from '@/components/AnimeLayout';
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import VideoPlayer from '@/components/VideoPlayer';
 import {
   Form,
   FormControl,
@@ -52,22 +52,20 @@ const AnimeGenerator = () => {
   const [generatedVideo, setGeneratedVideo] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
   
-  // Update the URL when the tab changes
   useEffect(() => {
     if (tabFromUrl !== activeTab) {
       navigate(`/generator?tab=${activeTab}`, { replace: true });
     }
   }, [activeTab, navigate, tabFromUrl]);
 
-  // Initialize active tab from URL on component mount
   useEffect(() => {
     if (tabFromUrl && ["text-to-image", "text-to-video", "image-to-video"].includes(tabFromUrl)) {
       setActiveTab(tabFromUrl);
     }
   }, [tabFromUrl]);
 
-  // Text to Image Form
   const textToImageForm = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -76,7 +74,6 @@ const AnimeGenerator = () => {
     },
   });
 
-  // Text to Video Form
   const textToVideoForm = useForm<z.infer<typeof videoFormSchema>>({
     resolver: zodResolver(videoFormSchema),
     defaultValues: {
@@ -85,7 +82,6 @@ const AnimeGenerator = () => {
     },
   });
 
-  // Image to Video Form
   const imageToVideoForm = useForm<z.infer<typeof imageToVideoFormSchema>>({
     resolver: zodResolver(imageToVideoFormSchema),
     defaultValues: {
@@ -94,19 +90,15 @@ const AnimeGenerator = () => {
     },
   });
 
-  // Handle form submissions
   const handleTextToImageSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsGenerating(true);
     setGeneratedImage(null);
     
     try {
-      // In a real application, this would call an API endpoint
       console.log("Generating anime image with:", values);
       
-      // Simulate API call with timeout
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      // For demonstration, we'll use a placeholder anime image
       const demoImages = [
         "/anime-character-1.jpg",
         "/anime-character-2.jpg",
@@ -129,11 +121,18 @@ const AnimeGenerator = () => {
     try {
       console.log("Generating anime video with:", values);
       
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 3000));
       
-      // Demo video URL (in a real app, this would come from your video generation API)
-      setGeneratedVideo("/anime-video-sample.mp4");
+      const demoVideos = {
+        short: "/anime-video-sample-short.mp4", 
+        medium: "/anime-video-sample.mp4",
+        long: "/anime-video-sample-long.mp4"
+      };
+      
+      const selectedVideo = demoVideos[values.duration] || demoVideos.medium;
+      
+      const timestamp = new Date().getTime();
+      setGeneratedVideo(`${selectedVideo}?t=${timestamp}`);
       toast.success("Your anime video has been generated!");
     } catch (error) {
       toast.error("Failed to generate video. Please try again.");
@@ -155,11 +154,17 @@ const AnimeGenerator = () => {
     try {
       console.log("Generating video from image with:", { ...values, image: selectedImage.name });
       
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 3000));
       
-      // Demo video URL
-      setGeneratedVideo("/anime-video-sample.mp4");
+      const demoVideos = {
+        short: "/anime-video-sample-short.mp4", 
+        medium: "/anime-video-sample.mp4",
+        long: "/anime-video-sample-long.mp4"
+      };
+      
+      const timestamp = new Date().getTime();
+      const selectedVideo = demoVideos[values.duration] || demoVideos.medium;
+      setGeneratedVideo(`${selectedVideo}?t=${timestamp}`);
       toast.success("Your anime video has been generated from the image!");
     } catch (error) {
       toast.error("Failed to generate video from image. Please try again.");
@@ -174,6 +179,13 @@ const AnimeGenerator = () => {
     if (file) {
       if (file.type.startsWith('image/')) {
         setSelectedImage(file);
+        
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setPreviewImage(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+        
         toast.success(`Image ${file.name} selected`);
       } else {
         toast.error("Please select an image file");
@@ -214,7 +226,6 @@ const AnimeGenerator = () => {
             </TabsTrigger>
           </TabsList>
 
-          {/* Text to Image Content */}
           <TabsContent value="text-to-image">
             <div className="grid md:grid-cols-2 gap-8">
               <Card>
@@ -359,7 +370,6 @@ const AnimeGenerator = () => {
             </div>
           </TabsContent>
 
-          {/* Text to Video Content */}
           <TabsContent value="text-to-video">
             <div className="grid md:grid-cols-2 gap-8">
               <Card>
@@ -470,13 +480,12 @@ const AnimeGenerator = () => {
                     </div>
                   ) : generatedVideo ? (
                     <div className="w-full h-full flex items-center justify-center">
-                      <video 
-                        src={generatedVideo} 
-                        className="max-w-full max-h-full rounded-lg shadow-lg" 
-                        controls
-                      >
-                        Your browser does not support the video tag.
-                      </video>
+                      <VideoPlayer 
+                        videoSrc={generatedVideo}
+                        posterSrc="/anime-video-poster.jpg"
+                        title="Generated Anime Video"
+                        className="w-full aspect-video"
+                      />
                     </div>
                   ) : (
                     <div className="text-center py-12 text-gray-500">
@@ -496,7 +505,6 @@ const AnimeGenerator = () => {
             </div>
           </TabsContent>
 
-          {/* Image to Video Content */}
           <TabsContent value="image-to-video">
             <div className="grid md:grid-cols-2 gap-8">
               <Card>
@@ -516,13 +524,21 @@ const AnimeGenerator = () => {
                             htmlFor="image-upload"
                             className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-umbros-dark border-gray-600 hover:border-umbros-flame"
                           >
-                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                              <Image className="w-10 h-10 mb-3 text-gray-400" />
-                              <p className="mb-2 text-sm text-gray-400">
-                                <span className="font-semibold">Click to upload</span> or drag and drop
-                              </p>
-                              <p className="text-xs text-gray-400">PNG, JPG or WebP (MAX. 10MB)</p>
-                            </div>
+                            {previewImage ? (
+                              <img 
+                                src={previewImage} 
+                                alt="Selected image" 
+                                className="h-full max-w-full object-contain rounded-lg" 
+                              />
+                            ) : (
+                              <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                <Image className="w-10 h-10 mb-3 text-gray-400" />
+                                <p className="mb-2 text-sm text-gray-400">
+                                  <span className="font-semibold">Click to upload</span> or drag and drop
+                                </p>
+                                <p className="text-xs text-gray-400">PNG, JPG or WebP (MAX. 10MB)</p>
+                              </div>
+                            )}
                             <Input
                               id="image-upload"
                               type="file"
@@ -532,7 +548,7 @@ const AnimeGenerator = () => {
                             />
                           </label>
                         </div>
-                        {selectedImage && (
+                        {selectedImage && !previewImage && (
                           <div className="mt-4 text-sm text-gray-400">
                             Selected: {selectedImage.name}
                           </div>
@@ -637,13 +653,12 @@ const AnimeGenerator = () => {
                     </div>
                   ) : generatedVideo ? (
                     <div className="w-full h-full flex items-center justify-center">
-                      <video 
-                        src={generatedVideo} 
-                        className="max-w-full max-h-full rounded-lg shadow-lg" 
-                        controls
-                      >
-                        Your browser does not support the video tag.
-                      </video>
+                      <VideoPlayer
+                        videoSrc={generatedVideo}
+                        posterSrc={previewImage || "/anime-video-poster.jpg"}
+                        title="Generated From Image"
+                        className="w-full aspect-video"
+                      />
                     </div>
                   ) : (
                     <div className="text-center py-12 text-gray-500">
