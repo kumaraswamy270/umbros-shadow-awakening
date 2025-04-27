@@ -1,10 +1,10 @@
+
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import AnimeLayout from '@/components/AnimeLayout';
 import { useAuth } from '@/contexts/AuthContext';
@@ -24,8 +24,13 @@ const signupSchema = loginSchema;
 const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const { login, signup } = useAuth();
+
+  // Get the redirect path from state or default to home page
+  const from = (location.state as { from?: { pathname: string, search: string } })?.from || { pathname: '/', search: '' };
+  const redirectTo = from.search ? `${from.pathname}${from.search}` : from.pathname;
 
   const loginForm = useForm({
     resolver: zodResolver(loginSchema),
@@ -54,7 +59,8 @@ const Login = () => {
           title: "Login successful!",
           description: "Welcome back to JackAnime.",
         });
-        navigate('/');
+        // Navigate to the page they were trying to access or home
+        navigate(redirectTo);
       } else {
         toast({
           title: "Login failed",

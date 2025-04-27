@@ -1,11 +1,12 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { motion } from 'framer-motion';
 import { Wand, Image, Film, ArrowRight } from 'lucide-react';
 import { toast } from "sonner";
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import AnimeLayout from '@/components/AnimeLayout';
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -43,12 +44,29 @@ const imageToVideoFormSchema = z.object({
 });
 
 const AnimeGenerator = () => {
-  const [activeTab, setActiveTab] = useState("text-to-image");
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const tabFromUrl = searchParams.get('tab');
+  const [activeTab, setActiveTab] = useState(tabFromUrl || "text-to-image");
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [generatedVideo, setGeneratedVideo] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   
+  // Update the URL when the tab changes
+  useEffect(() => {
+    if (tabFromUrl !== activeTab) {
+      navigate(`/generator?tab=${activeTab}`, { replace: true });
+    }
+  }, [activeTab, navigate, tabFromUrl]);
+
+  // Initialize active tab from URL on component mount
+  useEffect(() => {
+    if (tabFromUrl && ["text-to-image", "text-to-video", "image-to-video"].includes(tabFromUrl)) {
+      setActiveTab(tabFromUrl);
+    }
+  }, [tabFromUrl]);
+
   // Text to Image Form
   const textToImageForm = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -218,7 +236,7 @@ const AnimeGenerator = () => {
                             <FormControl>
                               <Textarea 
                                 placeholder="Describe your anime character (e.g., 'A female character with long blue hair, wearing a school uniform, with cat ears')"
-                                className="min-h-[120px]" 
+                                className="min-h-[180px]" 
                                 {...field} 
                               />
                             </FormControl>
@@ -363,7 +381,7 @@ const AnimeGenerator = () => {
                             <FormControl>
                               <Textarea 
                                 placeholder="Describe the anime scene (e.g., 'A ninja character running through a futuristic Tokyo cityscape at night with neon lights')"
-                                className="min-h-[120px]" 
+                                className="min-h-[180px]" 
                                 {...field} 
                               />
                             </FormControl>
@@ -530,7 +548,7 @@ const AnimeGenerator = () => {
                             <FormControl>
                               <Textarea 
                                 placeholder="Describe how the image should be animated (e.g., 'Zoom in slowly on the character's face')"
-                                className="min-h-[80px]" 
+                                className="min-h-[180px]" 
                                 {...field} 
                               />
                             </FormControl>
