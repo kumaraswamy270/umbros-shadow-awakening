@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { BookOpen, Film, Image, Play, Book, LogIn, LogOut, User, Wand } from 'lucide-react';
+import { BookOpen, Film, Image, Play, LogIn, LogOut, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import {
   NavigationMenu,
@@ -28,26 +28,6 @@ const AnimeNavigation = () => {
         <div className="flex justify-between items-center">
           <NavigationMenu className="py-4">
             <NavigationMenuList className="gap-6">
-              <NavigationMenuItem>
-                <NavigationMenuTrigger>
-                  <Book className="w-5 h-5 mr-2" />
-                  eBooks
-                </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px]">
-                    <ListItem href="/ebooks" title="All eBooks" icon={Book}>
-                      Browse our entire collection
-                    </ListItem>
-                    <ListItem href="/ebooks?category=new" title="New Releases" icon={Book}>
-                      Recently added to our library
-                    </ListItem>
-                    <ListItem href="/ebooks?category=popular" title="Popular eBooks" icon={Book}>
-                      Reader favorites
-                    </ListItem>
-                  </ul>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-
               <NavigationMenuItem>
                 <NavigationMenuTrigger>
                   <BookOpen className="w-5 h-5 mr-2" />
@@ -116,29 +96,6 @@ const AnimeNavigation = () => {
                     </ListItem>
                     <ListItem href="/gallery?type=behind" title="Behind the Scenes" icon={BookOpen}>
                       Production artwork and sketches
-                    </ListItem>
-                  </ul>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-
-              <NavigationMenuItem>
-                <NavigationMenuTrigger>
-                  <Wand className="w-5 h-5 mr-2" />
-                  Generator
-                </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px]">
-                    <ListItem href="/generator" title="Anime Generator" icon={Wand}>
-                      Create custom anime content
-                    </ListItem>
-                    <ListItem href="/generator?tab=text-to-image" title="Text to Image" icon={Image}>
-                      Generate anime characters from descriptions
-                    </ListItem>
-                    <ListItem href="/generator?tab=text-to-video" title="Text to Video" icon={Film}>
-                      Create anime videos from text prompts
-                    </ListItem>
-                    <ListItem href="/generator?tab=image-to-video" title="Image to Video" icon={Film}>
-                      Convert anime images to videos
                     </ListItem>
                   </ul>
                 </NavigationMenuContent>

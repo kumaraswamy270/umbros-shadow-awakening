@@ -59,7 +59,7 @@ const Index = () => {
             transition={{ duration: 0.8, delay: 1 }}
             className="text-5xl sm:text-6xl md:text-7xl font-bold mb-6 text-white shadow-text"
           >
-            <span className="text-umbros-flame">UMBROS:</span> Shadow Awakening
+            <span className="text-umbros-flame">Rakts</span> Soul of Ravana
           </motion.h1>
           
           <motion.p 
